@@ -1,73 +1,60 @@
-Create Table Usuarios(
-IdU Varchar2(6) Not Null,--@@@###
-Nombres Varchar2 (40) Not Null,
-ApePat Varchar2(40) Not Null,
-ApeMat Varchar2(40)Not Null,
-Matricula Varchar2(12) Not Null,
-Tipo Varchar2(10) Not Null,
-Fecha Date Not Null,
-NumQuizzes Int,
-Email Varchar2(80),
-Contrasenia Varchar2(30)
-Constraint PK$IDU$USUARIOS Primary Key(IdU),
-Constraint UK$Matricula$Usuarios Unique(Matricula)
-);
---------------------------------------------------
-Create Table Quiz(
-IdQ Varchar2(6) Not Null,--QZ####
-Nombre Varchar2 (40) Not Null,
-NumPreguntas Int Not Null,
-Fecha Date Not Null,
-Creador Varchar2(6) Not Null,--@@@###
-Constraint PK$IDQ$QUIZ Primary Key (IdQ),
-Constraint FK$CREADOR$USUARIOS Foreign Key (Creador) References Usuarios(IdU)
-);
------------------------------------------------------
-Create Table Preguntas(
-IdP Varchar2(6) Not Null,--PR####
-IdQ Varchar2(6) Not Null,--@@@###
-NumPregunta Int Not Null,
-DescPregunta Varchar2(80) Not Null,
-TipoPregunta Varchar2(15) Not Null,
-Opc1 Varchar2(80),
-Opc2 Varchar2(80),
-Opc3 Varchar2(80),
-Opc4 Varchar2(80),
-Respuesta Varchar2(80),
-Constraint PK$IDP$PREGUNTAS Primary Key (IdP),
-Constraint FK$IDQ$QUIZ Foreign Key (IdQ) References Quiz(IdQ)
-);
-----------------------------------------------------------
-Create Table Resultados(
-IdR Varchar2(6) Not Null,--QR####
-Usuario Int Not Null,
-Quizz Int Not Null,
-Pregunta Int Not Null,
-Fecha Date Not Null,
-Respuesta Varchar2(80),
-Resultado Varchar2(10),
-Constraint PK$IDR$RESULTADOS Primary Key(IdR),
-Constraint FK$USUARIO$USUARIOS Foreign Key(Usuario) References Usuarios(IdU),
-Constraint FK$QUIZZ$QUIZ Foreign Key(Quizz) References Quiz(IdQ),
-Constraint FK$PREGUNTA$PREGUNTAS Foreign Key(Pregunta) References Preguntas(IdP)
-);
--------------------------------------------------------
-Create Table ResultadosQuizz(
-IdRQ Varchar2(6),--RQ####
-IdQ Varchar2(6),--QZ####
-Calificaion Number,--En el juego es precisión
-Correcto Int,
-Incorrecto Int,
-Puntuacion Int,
-TiempoRlz Time,
-Correctas Int,
-Incorrectas Int,
-Racha Int,
-Constraint PK$IDQR$RESULTADOSQUIZZ Primary Key(IdRQ),
-Constraint FK$RESULTADOSQUIZZ$QUIZZ Foreign Key (IdQ) References Quiz(IdQ)
-);
----------------------------------------------------------
+--TABLA QUE ALVERGARÁ LOS DATOS DEL USUARIO
+Create Table P_USUARIO(
+Id_Usuario Varchar2 (6) Not Null,
+Nombre Varchar2(50) Not Null,   
+ApePat VARCHAR2(50) Not Null,
+ApeMat VARCHAR2(50) Not Null,
+Email Varchar2 (50) Not Null,
+Contrasenia Varchar2(50) Not Null,
+Perfil Varchar2(50),
+Constraint PK$ID_USUARIO$P_USUARIOS Primary Key(Id_Usuario),
+Constraint UK$EMAIL$P_USUARIO Unique(Email)
+)
+--EL PERFIL ES PARA SABER SI ES EL QUE HIZO EL QUIZZ O ES EL QUE LO RESPONDE
+
+Create Table P_QUIZZ(
+Id_Quizz Varchar2(6) Not Null,
+Id_Usuario Varchar2(6) Not Null,  
+Descripcion_quizz Varchar2(50),
+Fecha_creacion Date Default Sysdate,
+Constraint PK$ID_QUIZZ$P_QUIZZ Primary Key(Id_Quizz),
+Constraint FK$P_QUIZZ$P_USUARIOS Foreign Key(Id_Usuario) References P_USUARIO(Id_Usuario)
+) 
 
 
-Select Substr(Nombre, 1, 1)|| Substr(ApePat, 1, 1) ||Substr(ApeMat, 1, 1)
-from tabla where idd = 1--Función generadora de ID
+Create Table P_QUIZZ_PREGUNTA(
+Id_Pregunta Varchar2(6) Not Null,
+Id_Quizz Varchar2(6) Not Null,
+Pregunta Varchar2(150) Not Null,     -- CUAL ES LA PREGUNTA
+Opc1 Varchar2(100) Not Null,  -- LAS OPCIONES QUE PUEDE TENER LE PREGUNTA
+Opc2 Varchar2(100) Not Null,
+Opc3 Varchar2(100) Not Null,
+Opc4 Varchar2(100) Not Null,
+Respuesta Varchar2(100) Not Null,
+Calificacion Integer Default 10,  --- CAMPO PARA SABER EL VALOR DE LA PREGUNTA DONDE EL VALOR POR DEFAULT VALDRA UN 10
+Constraint PK$ID_PREGUNTA$P_QUIZZ_PREG Primary Key(Id_Pregunta),
+Constraint FK$P_QUIZZ_PREGUNTA$P_QUIZZ Foreign Key(Id_Quizz) References P_QUIZZ(Id_Quizz)
+)  -- 
+
+
+--TABLA QUE REGISTRA QUE QUIZZ HACE UN DETERMINADO USUARIO
+Create Table P_USUARIO_QUIZZ(
+Id_Usuario_Quizz Varchar2(6) NOT NULL,
+Id_Usuario Varchar2(6) NOT NULL,
+Id_Quizz Varchar2(6) NOT Null,
+Constraint PK$ID_USUARIO_QUIZZ$P_USER_QZZ Primary Key(Id_Usuario_Quizz),
+Constraint FK$P_USUARIO_QUIZZ$P_USUARIO Foreign Key(Id_Usuario) References P_USUARIO(Id_Usuario),
+Constraint FK$P_Quizz$P_QUIZZ Foreign Key(Id_Quizz) References P_Quizz(Id_Quizz)
+)
+
+
+Create Table P_USUARIO_QUIZZ_PREGUNTA(
+Id_usuario_quizz_pregunta Varchar2(6) Not Null,
+Id_usuario Varchar2(6) Not Null,
+Id_pregunta Varchar2(6) Not Null,
+Respuesta Int Not Null, --CON ESTO SE CHECA SI LA RESPUESTA ESTA CORRECTA O INCORRECTA
+Tiempo_respuesta Date Default Sysdate,
+Constraint PK$ID_USR_QZ_PRG$P_USR_QZ_PRG Primary Key(Id_Usuario_Quizz_Pregunta),
+Constraint FK$P_USR_QZ_PRG$P_USR Foreign Key(Id_Usuario) References P_USUARIO(Id_Usuario),
+Constraint FK$P_USR_QZ_PREG$P_PREG Foreign Key(Id_Pregunta) References P_Quizz_Pregunta(Id_Pregunta)
+)
