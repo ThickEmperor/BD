@@ -1,2 +1,1 @@
-
-![case_proyecto](https://user-images.githubusercontent.com/61020543/143983870-2f039083-eb21-47d5-b710-78cad9012357.png)
+![image](https://user-images.githubusercontent.com/61020543/144053584-2364b8b6-3c89-4eb1-b979-80ba3f5d11ec.png)
